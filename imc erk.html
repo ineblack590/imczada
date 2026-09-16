@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de IMC</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #fff;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(34,197,94,.22), transparent 34%),
+        radial-gradient(circle at 85% 85%, rgba(14,165,233,.2), transparent 34%),
+        #07111d;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
+      padding: 34px;
+      border-radius: 28px;
+      background: rgba(13, 25, 38, .9);
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 28px 80px rgba(0,0,0,.42);
+    }
+
+    .badge {
+      width: 68px;
+      height: 68px;
+      display: grid;
+      place-items: center;
+      border-radius: 20px;
+      font-size: 32px;
+      background: linear-gradient(135deg, #22c55e, #0ea5e9);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(32px, 6vw, 46px);
+    }
+
+    .subtitle {
+      margin: 0 0 26px;
+      color: #aebdcb;
+      line-height: 1.55;
+    }
+
+    .field { margin-bottom: 18px; }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #d6e0e8;
+      font-size: 14px;
+    }
+
+    .input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #122333;
+      border: 1px solid #263d50;
+      border-radius: 16px;
+      padding-right: 15px;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px 16px;
+      border: 0;
+      outline: none;
+      color: white;
+      background: transparent;
+      font-size: 17px;
+    }
+
+    .unit {
+      color: #8295a7;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 5px;
+      padding: 16px;
+      border: 0;
+      border-radius: 16px;
+      color: white;
+      background: linear-gradient(135deg, #22c55e, #0ea5e9);
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 14px 32px rgba(14,165,233,.18);
+      transition: transform .2s;
+    }
+
+    button:hover { transform: translateY(-2px); }
+
+    .result {
+      display: none;
+      margin-top: 24px;
+      padding: 25px;
+      border-radius: 22px;
+      text-align: center;
+      background: rgba(255,255,255,.055);
+      border: 1px solid rgba(255,255,255,.09);
+    }
+
+    .result.show { display: block; }
+
+    .bmi {
+      font-size: 54px;
+      font-weight: 900;
+      margin: 0;
+    }
+
+    .classification {
+      font-size: 22px;
+      font-weight: 800;
+      margin: 5px 0 12px;
+    }
+
+    .message {
+      margin: 0;
+      color: #b5c2ce;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .scale {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      font-size: 11px;
+      color: #c5d0da;
+    }
+
+    .scale span {
+      padding: 10px 5px;
+      background: #17293a;
+      border-radius: 9px;
+    }
+
+    .hint {
+      margin: 18px 0 0;
+      color: #74889a;
+      font-size: 12px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    @media (max-width: 520px) {
+      .card { padding: 24px; }
+      .scale { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="badge">⚖️</div>
+    <h1>Calculadora de IMC</h1>
+    <p class="subtitle">
+      Informe seu peso e sua altura para calcular o Índice de Massa Corporal.
+    </p>
+
+    <div class="field">
+      <label for="weight">Peso</label>
+      <div class="input-wrap">
+        <input id="weight" type="number" min="1" max="500" step="0.1" placeholder="Ex.: 70">
+        <span class="unit">kg</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="height">Altura</label>
+      <div class="input-wrap">
+        <input id="height" type="number" min="0.5" max="2.8" step="0.01" placeholder="Ex.: 1.75">
+        <span class="unit">metros</span>
+      </div>
+    </div>
+
+    <button id="calculate">Calcular meu IMC</button>
+
+    <section class="result" id="result" aria-live="polite">
+      <p class="bmi" id="bmi">0,0</p>
+      <p class="classification" id="classification">Resultado</p>
+      <p class="message" id="message"></p>
+
+      <div class="scale">
+        <span>Baixo<br>&lt; 18,5</span>
+        <span>Normal<br>18,5–24,9</span>
+        <span>Sobrepeso<br>25–29,9</span>
+        <span>Obesidade<br>≥ 30</span>
+      </div>
+    </section>
+
+    <p class="hint">
+      O IMC é uma medida de triagem e não substitui uma avaliação profissional.
+      Para crianças, adolescentes, gestantes e atletas, a interpretação pode ser diferente.
+    </p>
+  </main>
+
+  <script>
+    const weightInput = document.getElementById("weight");
+    const heightInput = document.getElementById("height");
+    const calculateButton = document.getElementById("calculate");
+    const result = document.getElementById("result");
+    const bmiEl = document.getElementById("bmi");
+    const classificationEl = document.getElementById("classification");
+    const messageEl = document.getElementById("message");
+
+    function calculateBMI() {
+      const weight = Number(weightInput.value);
+      const height = Number(heightInput.value);
+
+      if (!weight || !height || weight <= 0 || height <= 0) {
+        result.classList.add("show");
+        bmiEl.textContent = "—";
+        classificationEl.textContent = "Preencha os campos";
+        messageEl.textContent = "Digite um peso e uma altura válidos para realizar o cálculo.";
+        return;
+      }
+
+      const bmi = weight / (height * height);
+      const formatted = bmi.toFixed(1).replace(".", ",");
+
+      let classification;
+      let message;
+
+      if (bmi < 18.5) {
+        classification = "Abaixo do peso";
+        message = "O resultado está abaixo da faixa de referência usada para adultos.";
+      } else if (bmi < 25) {
+        classification = "Peso normal";
+        message = "O resultado está dentro da faixa de referência usada para adultos.";
+      } else if (bmi < 30) {
+        classification = "Sobrepeso";
+        message = "O resultado está acima da faixa de referência usada para adultos.";
+      } else {
+        classification = "Obesidade";
+        message = "O resultado está na faixa de obesidade pela classificação de IMC para adultos.";
+      }
+
+      bmiEl.textContent = formatted;
+      classificationEl.textContent = classification;
+      messageEl.textContent = message;
+      result.classList.add("show");
+    }
+
+    calculateButton.addEventListener("click", calculateBMI);
+
+    [weightInput, heightInput].forEach(input => {
+      input.addEventListener("keydown", event => {
+        if (event.key === "Enter") calculateBMI();
+      });
+    });
+  </script>
+</body>
+</html>
